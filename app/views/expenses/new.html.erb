@@ -1,0 +1,21 @@
+<h1> Create new expense </h1>
+<%= form_with model: @expense, local: true, turbo: false do |f| %>
+  <div>
+    <%= f.label :title, "Enter Title"%>
+    <%= f.text_field :title %>
+  </div>
+  <div>
+    <%= f.label :value, "Enter value" %>
+    <%= f.number_field :value %>
+  </div>
+  <div>
+    <%= f.label :spent_on, "Enter date" %>
+    <%= f.date_field :spent_on %>
+  </div>
+  <div>
+    <%= f.submit "SAVE"%>
+  </div>
+<%end%>
+<div> 
+  <%= link_to "back", root_path %>
+</div>
