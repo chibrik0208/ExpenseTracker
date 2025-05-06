@@ -1,12 +1,20 @@
 <h1>EXPENSE <%= @expense.id %></h1>
 <div>
-<%= @expense.title%>
+  <%= @expense.title%>
 </div>
 <div>
-<%= @expense.value%>
+  <%= @expense.value%>
 </div>
 <div>
-<%= @expense.spent_on%>
+  <%= @expense.spent_on%>
 </div>
-<%= link_to "back", root_path %>
+<div>
+  <%= link_to "back", root_path %>
+</div>
+<div>
+  <%= link_to "update", edit_expense_path %>
+</div>
+<div>
+  <%= button_to "delete", @expense, method: :delete  %>
+</div>
 

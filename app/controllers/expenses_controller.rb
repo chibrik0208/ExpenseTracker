@@ -23,15 +23,19 @@ class ExpensesController < ApplicationController
   end
 
   def edit
-
   end
 
   def update
-
+    if @expense.update(expense_params)
+      redirect_to @expense
+    else
+      render :edit  
+    end
   end
 
   def destroy
-
+    @expense.destroy
+    redirect_to root_path
   end
 
  
