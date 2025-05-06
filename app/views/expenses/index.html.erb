@@ -1,6 +1,6 @@
 <h1> Your monthly expenses </h1>
 <% @expenses.each do |expense| %>
-<h2><%= expense.title%></h2>
+<h2><%= link_to expense.title, expense %></h2>
 <%end%>
 <div>
  <%= link_to "Create new expense" , new_expense_path %>
