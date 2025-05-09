@@ -1,20 +1,21 @@
-<h1>EXPENSE <%= @expense.id %></h1>
-<div>
-  <%= @expense.title%>
-</div>
-<div>
-  <%= @expense.value%>
-</div>
-<div>
-  <%= @expense.spent_on%>
-</div>
-<div>
-  <%= link_to "back", root_path %>
-</div>
-<div>
-  <%= link_to "update", edit_expense_path %>
-</div>
-<div>
-  <%= button_to "delete", @expense, method: :delete  %>
-</div>
-
+<div class="container">
+  <h1>EXPENSE <%= @expense.id %></h1>
+  <div>
+    <%= @expense.title%>
+  </div>
+  <div>
+    <%= @expense.value%>
+  </div>
+  <div>
+    <%= @expense.spent_on%>
+  </div><br>
+  <div class="show_button">
+    <%= link_to "back", root_path %>
+  </div><br>
+  <div>
+    <%= link_to "update", edit_expense_path %>
+  </div><br>
+  <div>
+    <%= button_to "delete", @expense, method: :delete  %>
+  </div>
+</div>  
