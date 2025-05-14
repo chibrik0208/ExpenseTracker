@@ -1,8 +1,9 @@
 class ExpensesController < ApplicationController
+  before_action :require_login #Перед каждым действием рильса проверяет вошел пользователь или нет и не пускает дальше если нет
   before_action :set_expense, only: %i[show edit update destroy]
 
   def index
-    @expenses = Expense.all
+    @expenses = current_user.expenses
   end
 
   def show                                                                                            
@@ -13,7 +14,7 @@ class ExpensesController < ApplicationController
   end
 
   def create
-    @expense = Expense.new(expense_params)
+    @expense = current_user.expenses.new(expense_params)
 
     if @expense.save
       redirect_to root_path
@@ -46,6 +47,6 @@ class ExpensesController < ApplicationController
   end
 
   def set_expense
-    @expense = Expense.find(params[:id])
+    @expense = current_user.expenses.find(params[:id])
   end
 end
