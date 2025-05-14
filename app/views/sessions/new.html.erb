@@ -1,0 +1,15 @@
+<h1>Join us!</h1>
+<%= form_with url: login_path, local: true do |f| %>
+  <div>
+    <%= f.label :email, "Enter your Email"%><br>
+    <%= f.email_field :email, required: true, autofocus: true %>
+  </div>
+  <div>
+    <%= f.label :password, "Enter your password" %><br>
+    <%= f.password_field :password, required: true %>
+  </div>
+  <div><br>
+    <%= f.submit "LOG IN"%><br>
+  </div>
+<%end%><br>
+<%= link_to "Register", signup_path %>
