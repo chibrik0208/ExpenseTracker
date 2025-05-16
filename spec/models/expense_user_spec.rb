@@ -68,5 +68,26 @@ RSpec.describe Expense, type: :model do
         expect(expense.errors[:value]).to include("must be greater than 0") #говорим ему какую ошибку мы ожидаем дословно как в консоли
       end
     end
+
+    context 'title' do
+      it 'less or equal 16' do
+      expense = Expense.new(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
+      expect(expense.title.length).to be <= 16
+      end
+
+      it 'more than 16' do
+        expense = Expense.new(title:"Boriaddddsfdssfdsdfsfdsdffdsfdsdsfdfssdffsdsdfsdf",value: 20, spent_on: Date.today, user: user)
+        expect(expense.title.length).to_not be <= 16
+        expect(expense).to_not be_valid
+        expect(expense.errors[:title]).to include("is too long (maximum is 16 characters)")
+      end
+
+      it 'does not allows to duplicate title' do
+        Expense.create!(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
+        expense = Expense.new(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
+        expect(expense).to_not be_valid
+        expect(expense.errors[:title]).to include("has already been taken")
+      end
+    end
   end
 end
