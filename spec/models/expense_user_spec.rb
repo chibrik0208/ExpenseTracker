@@ -23,74 +23,66 @@ RSpec.describe Expense, type: :model do
       let(:expense) { create(:expense, :without_value)}
 
       it 'Not saves without value' do
-        expect{ expense }.to raise_error(Active::RecordInvalid)
+        expect{ expense }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
 
     context 'with invalid params' do
+      let(:expense) { create(:expense, :without_spent_on)}
+
       it 'Not saves without spent_on' do
-        expense = Expense.new(title:"Barispal",value: 800, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:spent_on]).to include("can't be blank") #говорим ему какую ошибку мы ожидаем дословно как в консоли
-      end
-    end
-
-    context 'with invalid params' do
-      it 'Not saves without user' do
-        expense = Expense.new(title:"Barispal",value: 800, spent_on: Date.today)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:user]).to include("must exist") #говорим ему какую ошибку мы ожидаем дословно как в консоли
+        expect{ expense }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
 
     context 'value' do
+      let(:expense) { create(:expense)}
+      let(:invalid_expense) { build(:expense, value: "not a num") }
+      let(:expense_wrong_value) { build(:expense, value: 0) }
+
       it 'Is a number' do
-        expense = Expense.new(title:"Boria",value: 5.7, spent_on: Date.today, user: user)
-        expect(expense).to be_valid
+        expect(expense.value).to be_a(Numeric)
       end
 
       it 'Is not saves if numer is invalid' do
-        expense = Expense.new(title:"Boria",value: 'hey', spent_on: Date.today, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:value]).to include("is not a number") #говорим ему какую ошибку мы ожидаем дословно как в консоли
+        expect(invalid_expense).to_not be_valid
+        expect(invalid_expense.errors[:value]).to include("is not a number")
       end
 
       it 'greatter than 0' do
-        expense = Expense.new(title:"Boria",value: 555, spent_on: Date.today, user: user)
-        expect(expense).to be_valid
+        expect(expense.value).to be > 0
       end
 
       it 'less than 0' do
-        expense = Expense.new(title:"Boria",value: -18, spent_on: Date.today, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:value]).to include("must be greater than 0") #говорим ему какую ошибку мы ожидаем дословно как в консоли
+        expect(expense_wrong_value).to_not be_valid
+        expect(expense_wrong_value.errors[:value]).to include("must be greater than 0") #говорим ему какую ошибку мы ожидаем дословно как в консоли
       end
     end
 
     context 'title' do
+      let!(:expense) { create(:expense, title: "uniq title") }
+      let(:expense_long_title) { build(:expense, title: "TESTTESTTESTTESTTESTETETSTTEST") }
+      let(:duplicate_expense) { build(:expense, title: "uniq title") }
+
       it 'less or equal 16' do
-      expense = Expense.new(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
-      expect(expense.title.length).to be <= 16
+        expect(expense.title.length).to be <= 16
       end
 
       it 'more than 16' do
-        expense = Expense.new(title:"Boriaddddsfdssfdsdfsfdsdffdsfdsdsfdfssdffsdsdfsdf",value: 20, spent_on: Date.today, user: user)
-        expect(expense.title.length).to_not be <= 16
-        expect(expense).to_not be_valid
-        expect(expense.errors[:title]).to include("is too long (maximum is 16 characters)")
+        expect(expense_long_title).to_not be_valid
+        expect(expense_long_title.errors[:title]).to include("is too long (maximum is 16 characters)")
       end
 
       it 'does not allows to duplicate title' do
-        Expense.create!(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
-        expense = Expense.new(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:title]).to include("has already been taken")
+        expect(duplicate_expense).to_not be_valid
+        expect(duplicate_expense.errors[:title]).to include("has already been taken")
       end
     end
 
     context 'spent_on_not_in_future' do
-      let(:expense) { Expense.create(title: "House", value: 100000, spent_on: "17.05.2025", user: user)}
-      let(:expense_in_future) { Expense.create(title: "House", value: 100000, spent_on: "25.05.2025", user: user)}
+      let(:expense) { create(:expense) }
+      let(:expense_in_future) { build(:expense, spent_on: Date.today + 1) }
+      let(:expense_wrong_format) { build(:expense, spent_on: "i'm a wrong date")}
 
       it 'saves if not in the future' do
         expect(expense).to be_valid
@@ -99,6 +91,30 @@ RSpec.describe Expense, type: :model do
       it 'not saves if in the future' do
         expect(expense_in_future).to_not be_valid
         expect(expense_in_future.errors[:spent_on]).to include("can't be in the future") 
+      end
+
+      # it 'saves wirh correct format' do
+      #   expect(expense.spent_on.strftime('%Y%M%D')). 
+      # end
+
+      it 'not saves with incorrect format' do
+        expect(expense_wrong_format).to_not be_valid
+        expect(expense_wrong_format.errors[:spent_on]).to include("can't be blank") 
+      end
+    end
+  end
+  
+  describe 'associations' do
+    context 'with invalid params' do
+      let(:expense) { create(:expense) }
+      let(:expense_no_user) { build(:expense, :without_user) } # build это просьба тесту попытаться сделать запрос в БД
+
+      it 'creates with exist user' do
+        expect(expense).to be_valid
+      end
+
+      it 'fails if user not exist' do
+        expect(expense_no_user).to_not be_valid
       end
     end
   end
