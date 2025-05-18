@@ -11,6 +11,6 @@ class Expense < ApplicationRecord
 
   def spent_on_not_in_future
     return if spent_on.blank?
-    errors.add(:spent_on, "cant be in the future") if spent_on > Date.today
+    errors.add(:spent_on, "can't be in the future") if spent_on > Date.today
   end
 end

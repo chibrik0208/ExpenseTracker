@@ -1,31 +1,29 @@
 require "rails_helper"
 
 RSpec.describe Expense, type: :model do
-    #let = Пусть
-  let(:user) { User.create(email:"hello@mal.ru", password:"123456") }
-
   describe 'expense#create' do
     context 'with valid params' do
+      let(:expense) { create(:expense)}
+
       it 'Save with valid params' do
-        expense = Expense.new(title:"Borispal", value: 800, spent_on: Date.today, user: user)
         #expect = ожидаем
         expect(expense).to be_valid
       end
     end
     
     context 'with invalid params' do
+      let(:expense) { create(:expense, :without_title)}
+
       it 'Not saves without title' do
-        expense = Expense.new(value: 800, spent_on: Date.today, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:title]).to include("can't be blank") #говорим ему какую ошибку мы ожидаем дословно как в консоли
+        expect{ expense }.to raise_error(ActiveRecord::RecordInvalid) # сама база данных вернет нам ошибку что без тайтла невозможно записать 
       end
     end
 
     context 'with invalid params' do
+      let(:expense) { create(:expense, :without_value)}
+
       it 'Not saves without value' do
-        expense = Expense.new(title:"Barispal", spent_on: Date.today, user: user)
-        expect(expense).to_not be_valid
-        expect(expense.errors[:value]).to include("can't be blank") #говорим ему какую ошибку мы ожидаем дословно как в консоли
+        expect{ expense }.to raise_error(Active::RecordInvalid)
       end
     end
 
@@ -87,6 +85,20 @@ RSpec.describe Expense, type: :model do
         expense = Expense.new(title:"Boriadddds",value: 20, spent_on: Date.today, user: user)
         expect(expense).to_not be_valid
         expect(expense.errors[:title]).to include("has already been taken")
+      end
+    end
+
+    context 'spent_on_not_in_future' do
+      let(:expense) { Expense.create(title: "House", value: 100000, spent_on: "17.05.2025", user: user)}
+      let(:expense_in_future) { Expense.create(title: "House", value: 100000, spent_on: "25.05.2025", user: user)}
+
+      it 'saves if not in the future' do
+        expect(expense).to be_valid
+      end
+
+      it 'not saves if in the future' do
+        expect(expense_in_future).to_not be_valid
+        expect(expense_in_future.errors[:spent_on]).to include("can't be in the future") 
       end
     end
   end
