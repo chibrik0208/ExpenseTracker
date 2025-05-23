@@ -93,9 +93,9 @@ RSpec.describe Expense, type: :model do
         expect(expense_in_future.errors[:spent_on]).to include("can't be in the future") 
       end
 
-      # it 'saves wirh correct format' do
-      #   expect(expense.spent_on.strftime('%Y%M%D')). 
-      # end
+      it 'saves wirh correct format' do
+        expect(expense.spent_on.strftime('%a, %d %b %Y')).to match(/\A[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4}\z/)
+      end
 
       it 'not saves with incorrect format' do
         expect(expense_wrong_format).to_not be_valid
