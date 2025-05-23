@@ -17,7 +17,7 @@ class ExpensesController < ApplicationController
     @expense = current_user.expenses.new(expense_params)
 
     if @expense.save
-      redirect_to root_path
+      redirect_to @expense
     else
       render :new
     end

@@ -36,5 +36,24 @@ RSpec.describe 'Expenses', type: :system do
       expect(page).to have_content("Join us!")
     end
   end
+
+  context "CRUD operations" do
+    before do
+      sign_in_as(user)
+    end
+
+    it 'create new expense' do
+      visit new_expense_path
+      fill_in "Enter Title", with: 'coffee'
+      fill_in "Enter value", with: 555
+      fill_in "Enter date", with: '23.05.2025'
+      click_button "SAVE"
+      
+      puts page.body
+      expect(page).to have_content("coffee")
+      expect(page).to have_content(555)
+      expect(page).to have_content('2025-05-23')
+    end
+  end
 end
 
