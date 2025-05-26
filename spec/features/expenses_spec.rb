@@ -99,6 +99,91 @@ RSpec.describe 'Expenses', type: :system do
 
       include_examples 'form with preserved fields'
     end
+
+    context 'when value is missing' do
+      let(:filled_title) { "sisi" }
+      let(:filled_value) { "" }
+      let(:filled_date) { "25.05.2025" }
+
+      let(:expected_title) { "sisi" }
+      let(:expected_value) { "" }
+      let(:expected_date) { "2025-05-25" }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when data missing' do
+      let(:filled_title) { "sisi" }
+      let(:filled_value) { "250" }
+      let(:filled_date) { "" }
+
+      let(:expected_title) { "sisi" }
+      let(:expected_value) { "250" }
+      let(:expected_date) { nil }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when title is longer than 16' do
+      let(:filled_title) { "sisi1231231233124" }
+      let(:filled_value) { "250" }
+      let(:filled_date) { "25.05.2025" }
+
+      let(:expected_title) { "sisi1231231233124" }
+      let(:expected_value) { "250" }
+      let(:expected_date) { "2025-05-25" }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when title is longer than 16' do
+      let(:filled_title) { "sisi12312312331" }
+      let(:filled_value) { "-250" }
+      let(:filled_date) { "25.05.2025" }
+
+      let(:expected_title) { "sisi12312312331" }
+      let(:expected_value) { "-250" }
+      let(:expected_date) { "2025-05-25" }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when value < 0' do
+      let(:filled_title) { "sisi12312312331" }
+      let(:filled_value) { "-250" }
+      let(:filled_date) { "25.05.2025" }
+
+      let(:expected_title) { "sisi12312312331" }
+      let(:expected_value) { "-250" }
+      let(:expected_date) { "2025-05-25" }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when date is in the future' do
+      let(:filled_title) { "sisi12312312331" }
+      let(:filled_value) { "250" }
+      let(:filled_date) { Date.today + 1 }
+
+      let(:expected_title) { "sisi12312312331" }
+      let(:expected_value) { "250" }
+      let(:expected_date) { Date.today + 1 }
+
+      include_examples 'form with preserved fields'
+    end
+
+    context 'when title is unique' do
+      let!(:existing_expense) { create(:expense, user:user, title: "sisi") }
+      let(:filled_title) { existing_expense.title }
+      let(:filled_value) { "250" }
+      let(:filled_date) { "25.05.2025" }
+
+      let(:expected_title) { existing_expense.title }
+      let(:expected_value) { "250" }
+      let(:expected_date) { "2025-05-25" }
+
+      include_examples 'form with preserved fields'
+    end
   end
 end
 
