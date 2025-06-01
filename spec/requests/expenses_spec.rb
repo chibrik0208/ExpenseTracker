@@ -47,4 +47,87 @@ RSpec.describe 'Expenses', type: :request do
       include_examples 'redirects to login', :get, proc { expenses_path(expense) } # это тоже самое что и 9 строка
     end
   end
+
+  describe "POST /expenses" do
+    context 'with valid params' do
+       include_context 'authenticated'
+
+       it 'creates expense and redirects' do
+        expect { post expenses_path, params: {expense: valid_params} }.to change(user.expenses, :count).by(1) # когда отправляем пост запрос при созании экспенса ожидаем что кол-во экспенсов у юзера  изменится на 1.
+        expect(response).to redirect_to(expense_path(Expense.last))
+       end
+    end
+
+    context 'with invalid params' do
+       include_context 'authenticated'
+
+       it 'not saves and returns 422' do
+        expect { post expenses_path, params: {expense: invalid_params} }.to_not change(Expense, :count) # когда отправляем пост запрос при созании экспенса ожидаем что кол-во экспенсов у юзера не изменится
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to render_template(:new)
+        expect(response.body).to include('Create new expense')
+       end
+    end
+  end
+
+  describe "GET #new" do
+    context 'authenticated' do
+      include_context 'authenticated'
+
+      it 'renders form' do
+        get new_expense_path # вот эту штуку делает gem rails-controller-testing
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to render_template(:new)
+        expect(response.body).to include('Create new expense')
+      end
+    end
+
+    context 'not authenticated' do
+      include_examples 'redirects to login', :get, proc { expenses_path } 
+    end
+  end
+
+  describe "PATCH /expenses/:id" do
+    let!(:old_expense) { create(:expense, user: user, title: 'old_title') }
+    let(:updated_expense) {{ title: 'new_title', value: old_expense.value, spent_on: old_expense.spent_on }}
+
+    context 'authenticated' do
+      include_context 'authenticated'
+
+      context 'with valid params' do
+        it 'renders form' do
+          get edit_expense_path(expense)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to render_template(:edit)
+          expect(response.body).to include('Edit your expense')
+        end
+        
+        it 'updates expense' do
+          expect {
+            patch expense_path(old_expense), params: { expense: updated_expense }
+            old_expense.reload
+          }.to change{ old_expense.title }.from('old_title').to('new_title')
+
+          expect(response).to redirect_to(expense_path(old_expense))
+        end
+      end
+      
+      context 'with invalid params' do
+        let!(:expense) { create(:expense, user: user)}
+        
+        it 'returns 422 and renders edit' do
+          expect { patch expense_path(expense), params: {expense: invalid_params} }.to_not change(Expense, :count)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to render_template(:edit)
+          expect(response.body).to include('Edit your expense') 
+        end
+      end
+    end
+
+    context 'not authenticated' do
+      include_examples 'redirects to login', :patch, proc { expense_path(expense) }
+    end
+  end
 end
