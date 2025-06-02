@@ -130,4 +130,35 @@ RSpec.describe 'Expenses', type: :request do
       include_examples 'redirects to login', :patch, proc { expense_path(expense) }
     end
   end
+
+  describe "DELETE /expenses/:id" do
+    context 'authenticated' do
+      include_context 'authenticated'
+      before { delete expense_path(expense) }
+
+      it 'redirects with 302(found)' do
+        expect(response).to have_http_status(:found)
+      end
+
+      it 'redirects to root_path' do
+        expect(response).to redirect_to(root_path)
+      end
+
+      context 'after redirect' do
+        before { follow_redirect! }
+
+        it 'returns 200(ok)' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'removes expense from the list' do
+          expect(response.body).to_not include(expense.title) 
+        end
+      end
+    end
+
+    context 'not authenticated' do
+      include_examples 'redirects to login', :delete, proc {expense_path(expense)}
+    end
+  end
 end
